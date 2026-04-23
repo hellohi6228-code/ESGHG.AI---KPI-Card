@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  :root, .theme-dark {
+    --bg-base: #09090b;
+    --bg-panel: #18181b;
+    --text-primary: #ffffff;
+    --text-secondary: #a1a1aa;
+    --border-subtle: #27272a;
+    --accent-primary: #10b981;
+  }
+  .theme-light {
+    --bg-base: #f4f4f5;
+    --bg-panel: #ffffff;
+    --text-primary: #09090b;
+    --text-secondary: #52525b;
+    --border-subtle: #e4e4e7;
+    --accent-primary: #059669;
+  }
+  .theme-grey {
+    --bg-base: #3f3f46;
+    --bg-panel: #52525b;
+    --text-primary: #ffffff;
+    --text-secondary: #e4e4e7;
+    --border-subtle: #71717a;
+    --accent-primary: #f4f4f5;
+  }
+  .theme-blue-yellow {
+    --bg-base: #1e3a8a;
+    --bg-panel: #1e40af;
+    --text-primary: #ffffff;
+    --text-secondary: #bfdbfe;
+    --border-subtle: #3b82f6;
+    --accent-primary: #fde047;
+  }
+  .theme-mandarin-green {
+    --bg-base: #ea580c;
+    --bg-panel: #f97316;
+    --text-primary: #ffffff;
+    --text-secondary: #ffedd5;
+    --border-subtle: #fb923c;
+    --accent-primary: #4ade80;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
