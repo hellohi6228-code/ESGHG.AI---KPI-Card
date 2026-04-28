@@ -132,6 +132,9 @@ export default function Dashboard({
                       : card.aiData!.value)
                   : getMockData(card.type, tf).val;
                 const displayTrend = hasAI ? card.aiData!.trend : getMockData(card.type, tf).trend;
+                const secValue = card.secondaryIndicator
+                ? getMockData(card.type, tf).val
+                : null;
 
             const isPositive =
               (displayTrend.startsWith('+') && card.type !== 'emission' && card.type !== 'price' && card.type !== 'control') ||
