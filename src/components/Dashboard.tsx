@@ -125,10 +125,13 @@ export default function Dashboard({
             const tf = timeframes[card.id] ?? 'daily';
 
             // Use AI-extracted value when available, otherwise mock
-            const hasAI = !!card.aiData;
-            const displayVal  = hasAI ? card.aiData!.value : getMockData(card.type, tf).val;
-            const displayTrend = hasAI ? card.aiData!.trend : getMockData(card.type, tf).trend;
-            const { val: secValue } = getMockData(card.type, tf === 'daily' ? 'weekly' : 'monthly');
+                const hasAI = !!card.aiData;
+                const displayVal = hasAI
+                  ? (card.aiData!.unit && card.aiData!.unit !== 'no unit'
+                      ? `${card.aiData!.value} ${card.aiData!.unit}`
+                      : card.aiData!.value)
+                  : getMockData(card.type, tf).val;
+                const displayTrend = hasAI ? card.aiData!.trend : getMockData(card.type, tf).trend;
 
             const isPositive =
               (displayTrend.startsWith('+') && card.type !== 'emission' && card.type !== 'price' && card.type !== 'control') ||
