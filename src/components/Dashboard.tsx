@@ -253,13 +253,15 @@ export default function Dashboard({
                               <X className="w-4 h-4" />
                             </button>
                           </div>
-                          <p className="text-sm text-[var(--text-primary)] leading-relaxed flex-1">{card.aiData.insight}</p>
-                          <div className="text-[10px] text-[var(--text-secondary)] font-mono mt-3 flex justify-between">
-                            <span>{card.aiData.fileName}</span>
-                            <span>{new Date(card.aiData.extractedAt).toLocaleDateString()}</span>
-                          </div>
-                        </motion.div>
-                      )}
+                         <p className="text-sm text-[var(--text-primary)] leading-relaxed">{card.aiData.insight}</p>
+                            {card.aiData.calculationSteps && (
+                              <div className="mt-3 pt-3 border-t border-[var(--border-subtle)]">
+                                <div className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wider mb-2 font-semibold">Calculation</div>
+                                <pre className="text-[10px] text-[var(--text-secondary)] whitespace-pre-wrap font-mono leading-relaxed overflow-y-auto max-h-40">
+                                  {card.aiData.calculationSteps}
+                                </pre>
+                              </div>
+                            )}
                     </AnimatePresence>
 
                     {/* Card layouts */}
