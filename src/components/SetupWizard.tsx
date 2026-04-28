@@ -207,16 +207,18 @@ const CompanyDrivePanel: React.FC<{
 }> = ({ description, onDescriptionChange }) => (
   <div className="space-y-3 mt-4">
     <div className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded-xl p-5 space-y-3">
-      <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-        Company intranet drives require a secure API connector configured by your IT team between your internal file server and this dashboard.
-      </p>
+      <div className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded-xl p-5 space-y-3">
+        <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+          Company intranet drives require a secure API connector configured by your IT team between your internal file server and this dashboard.
+        </p>
       
-        href="mailto:support@6kinc.com?subject=Company Drive Integration Request"
-        className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 rounded-lg text-sm font-medium hover:bg-[var(--accent-primary)]/20 transition-colors"
-      >
-        <Mail className="w-4 h-4" /> Contact IT / Admin
-      </a>
-    </div>
+        <a
+          href="mailto:support@6kinc.com?subject=Company Drive Integration Request"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 rounded-lg text-sm font-medium hover:bg-[var(--accent-primary)]/20 transition-colors"
+        >
+          <Mail className="w-4 h-4" /> Contact IT / Admin
+        </a>
+      </div>
     <textarea
       value={description}
       onChange={(e) => onDescriptionChange(e.target.value)}
