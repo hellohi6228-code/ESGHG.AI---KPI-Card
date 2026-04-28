@@ -16,13 +16,27 @@ const upload = multer({
   limits: { fileSize: 20 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     const ok =
-      file.mimetype.includes("csv") ||
-      file.mimetype.includes("excel") ||
-      file.mimetype.includes("spreadsheet") ||
-      file.mimetype.includes("pdf") ||
-      file.mimetype.includes("text") ||
-      file.originalname.endsWith(".csv") ||
-      file.originalname.endsWith(".xlsx");
+      file.mimetype.includes('csv') ||
+      file.mimetype.includes('excel') ||
+      file.mimetype.includes('spreadsheet') ||
+      file.mimetype.includes('pdf') ||
+      file.mimetype.includes('text') ||
+      file.originalname.endsWith('.csv') ||
+      file.originalname.endsWith('.xlsx');
+    cb(null, ok);
+  },
+});const upload = multer({
+  dest: uploadDir,
+  limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const ok =
+      file.mimetype.includes('csv') ||
+      file.mimetype.includes('excel') ||
+      file.mimetype.includes('spreadsheet') ||
+      file.mimetype.includes('pdf') ||
+      file.mimetype.includes('text') ||
+      file.originalname.endsWith('.csv') ||
+      file.originalname.endsWith('.xlsx');
     cb(null, ok);
   },
 });
