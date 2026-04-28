@@ -590,7 +590,14 @@ export default function SetupWizard({ onComplete }: { onComplete: (cards: CardCo
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {KPI_TYPES.map(type => (
                   <button key={type.value}
-                    onClick={() => updateCurrentCard({ type: type.value, dataSource: null, indicator: null, unit: null, aiData: undefined })}
+                    onClick={() => updateCurrentCard({
+                      type: type.value,
+                      dataSource: null, // reset ALWAYS
+                      dataSourceDescription: '',
+                      indicator: null,
+                      unit: null,
+                      aiData: undefined
+                    })}
                     className={`p-4 rounded-xl border text-left transition-all ${currentCard.type === type.value ? 'bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]/50 text-[var(--accent-primary)]' : 'bg-[var(--bg-base)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--text-secondary)]'}`}
                   >
                     <div className="font-medium mb-1">{type.label}</div>
