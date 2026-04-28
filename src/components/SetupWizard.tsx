@@ -3,7 +3,7 @@ import { CardConfig, KPIType, CardLayout, AIExtractedData, DataSourceType } from
 import { motion, AnimatePresence } from 'motion/react';
 import {
   ChevronRight, ChevronLeft, LayoutGrid, Settings2, Database, Activity,
-  X, Upload, Loader2, CheckCircle, FileText, AlertCircle, RefreshCw,
+  X, Loader2, CheckCircle, FileText, AlertCircle, RefreshCw,
   HardDrive, Cloud, Building2, Mail, FolderOpen, Cpu,
 } from 'lucide-react';
 
@@ -19,12 +19,10 @@ const KPI_TYPES: { value: KPIType; label: string; desc: string }[] = [
   { value: 'beta',     label: 'Beta',     desc: 'Volatility relative to market' },
 ];
 
-const DATA_SOURCE_OPTIONS: {
-  value: DataSourceType; label: string; desc: string; icon: React.ElementType;
-}[] = [
-  { value: 'local-upload',  label: 'Local File / Folder',        desc: 'Upload files from your device',                     icon: HardDrive },
-  { value: 'shared-drive',  label: 'Shared Drive & Spreadsheet', desc: 'Google Drive, SharePoint, Google Sheets',           icon: Cloud },
-  { value: 'company-drive', label: 'Company Shared Drive',       desc: 'Intranet drive — requires IT configuration',        icon: Building2 },
+const DATA_SOURCE_OPTIONS: { value: DataSourceType; label: string; desc: string; icon: React.ElementType }[] = [
+  { value: 'local-upload',  label: 'Local File / Folder',        desc: 'Upload files from your device',               icon: HardDrive },
+  { value: 'shared-drive',  label: 'Shared Drive & Spreadsheet', desc: 'Google Drive, SharePoint, Google Sheets',     icon: Cloud     },
+  { value: 'company-drive', label: 'Company Shared Drive',       desc: 'Intranet drive — requires IT configuration',  icon: Building2 },
 ];
 
 const UNITS: Record<KPIType, string[]> = {
@@ -49,27 +47,6 @@ const INDICATORS: Record<KPIType, { label: string; desc: string }[]> = {
   beta:     [{ label: 'Asset Beta', desc: 'Unlevered beta' }, { label: 'Equity Beta', desc: 'Levered beta' }],
 };
 
-const LAYOUTS: { value: CardLayout; label: string }[] = [
-  { value: 'standard',      label: 'Standard' },
-  { value: 'hero-top-left', label: 'Hero Top Left' },
-  { value: 'split-metrics', label: 'Split Metrics' },
-];
-
-// ── LayoutPreview ──────────────────────────────────────────────────────────
-const LayoutPreview: React.FC<{ layout: CardLayout; selected: boolean; onClick: () => void }> = ({ layout, selected, onClick }) => (
-  <div
-    onClick={onClick}
-    className={`cursor-pointer border rounded-xl p-4 transition-all ${selected ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/10' : 'border-[var(--border-subtle)] bg-[var(--bg-base)] hover:border-[var(--text-secondary)]'}`}
-  >
-    <div className="text-sm font-medium mb-3 text-[var(--text-primary)]">{layout === 'standard' ? 'Standard' : layout === 'hero-top-left' ? 'Hero Top Left' : 'Split Metrics'}</div>
-    <div className="h-24 border border-[var(--border-subtle)] rounded-lg bg-[var(--bg-panel)] p-3 flex flex-col gap-2 opacity-80">
-      {layout === 'standard' && (<><div className="flex gap-2 items-center"><div className="w-4 h-4 rounded bg-[var(--text-secondary)]" /><div className="w-16 h-2 bg-[var(--text-secondary)] rounded" /></div><div className="w-24 h-6 bg-[var(--text-primary)] rounded mt-auto" /></>)}
-      {layout === 'hero-top-left' && (<><div className="w-16 h-2 bg-[var(--text-secondary)] rounded" /><div className="w-24 h-8 bg-[var(--text-primary)] rounded" /><div className="w-10 h-2 bg-[var(--text-secondary)] rounded self-end mt-auto" /></>)}
-      {layout === 'split-metrics' && (<><div className="flex gap-2 items-center"><div className="w-4 h-4 rounded bg-[var(--text-secondary)]" /><div className="w-16 h-2 bg-[var(--text-secondary)] rounded" /></div><div className="flex gap-3 mt-auto items-end"><div className="w-12 h-6 bg-[var(--text-primary)] rounded" /><div className="w-px h-6 bg-[var(--border-subtle)]" /><div className="w-10 h-4 bg-[var(--text-secondary)] rounded" /></div></>)}
-    </div>
-  </div>
-);
-
 // ── LocalUploadPanel ───────────────────────────────────────────────────────
 const LocalUploadPanel: React.FC<{
   files: File[];
@@ -92,14 +69,15 @@ const LocalUploadPanel: React.FC<{
         onDragLeave={() => setDragOver(false)}
         onDrop={(e) => { e.preventDefault(); setDragOver(false); addFiles(Array.from(e.dataTransfer.files)); }}
         onClick={() => inputRef.current?.click()}
-        className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${dragOver ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/10' : files.length ? 'border-[var(--accent-primary)]/40 bg-[var(--accent-primary)]/5' : 'border-[var(--border-subtle)] hover:border-[var(--text-secondary)] bg-[var(--bg-panel)]'}`}
+        className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${
+          dragOver ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/10'
+          : files.length ? 'border-[var(--accent-primary)]/40 bg-[var(--accent-primary)]/5'
+          : 'border-[var(--border-subtle)] hover:border-[var(--text-secondary)] bg-[var(--bg-panel)]'
+        }`}
       >
         <input
-          ref={inputRef}
-          type="file"
-          accept=".csv,.xlsx,.xls,.pdf,.txt"
-          multiple
-          className="hidden"
+          ref={inputRef} type="file" accept=".csv,.xlsx,.xls,.pdf,.txt"
+          multiple className="hidden"
           onChange={(e) => { if (e.target.files) addFiles(Array.from(e.target.files)); }}
         />
         <FolderOpen className="w-6 h-6 text-[var(--text-secondary)] mx-auto mb-2" />
@@ -180,6 +158,7 @@ const SharedDrivePanel: React.FC<{
           </div>
           <ChevronRight className="w-4 h-4 text-[var(--text-secondary)] shrink-0" />
         </button>
+
         {msNote && (
           <div className="text-xs text-[var(--text-secondary)] bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 leading-relaxed">
             SharePoint integration requires Azure AD app registration.{' '}
@@ -207,18 +186,16 @@ const CompanyDrivePanel: React.FC<{
 }> = ({ description, onDescriptionChange }) => (
   <div className="space-y-3 mt-4">
     <div className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded-xl p-5 space-y-3">
-      <div className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded-xl p-5 space-y-3">
-        <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-          Company intranet drives require a secure API connector configured by your IT team between your internal file server and this dashboard.
-        </p>
+      <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+        Company intranet drives require a secure API connector configured by your IT team between your internal file server and this dashboard.
+      </p>
       
-        <a
-          href="mailto:support@6kinc.com?subject=Company Drive Integration Request"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 rounded-lg text-sm font-medium hover:bg-[var(--accent-primary)]/20 transition-colors"
-        >
-          <Mail className="w-4 h-4" /> Contact IT / Admin
-        </a>
-      </div>
+        href="mailto:support@6kinc.com?subject=Company Drive Integration Request"
+        className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 rounded-lg text-sm font-medium hover:bg-[var(--accent-primary)]/20 transition-colors"
+      >
+        <Mail className="w-4 h-4" /> Contact IT / Admin
+      </a>
+    </div>
     <textarea
       value={description}
       onChange={(e) => onDescriptionChange(e.target.value)}
@@ -239,7 +216,8 @@ const UnitSelector: React.FC<{
   const predefined = UNITS[kpiType];
 
   if (kpiType === 'beta') {
-    if (value !== 'no unit') onChange('no unit');
+    // auto-set on render via useEffect equivalent — call onChange once
+    React.useEffect(() => { if (value !== 'no unit') onChange('no unit'); }, []);
     return (
       <div className="text-xs text-[var(--text-secondary)] bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-lg px-3 py-2">
         Beta is dimensionless — no unit required.
@@ -342,7 +320,9 @@ const FileAnalysisZone: React.FC<{
   return (
     <div className="space-y-4">
       <div className="bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-lg px-4 py-3 space-y-1.5">
-        <div className="text-xs text-[var(--text-secondary)] mb-2">{files.length} file{files.length > 1 ? 's' : ''} queued</div>
+        <div className="text-xs text-[var(--text-secondary)] mb-2">
+          {files.length} file{files.length > 1 ? 's' : ''} queued
+        </div>
         {files.map((f, i) => (
           <div key={i} className="flex items-center gap-2 text-xs">
             <FileText className="w-3 h-3 text-[var(--accent-primary)] shrink-0" />
@@ -421,7 +401,7 @@ const FileAnalysisZone: React.FC<{
 
 // ── Main Wizard ────────────────────────────────────────────────────────────
 export default function SetupWizard({ onComplete }: { onComplete: (cards: CardConfig[]) => void }) {
-  const [step, setStep] = useState<'count' | 'configure' | 'layouts' | 'ai-model'>('count');
+  const [step, setStep] = useState<'count' | 'configure' | 'ai-model'>('count');
   const [cardCount, setCardCount] = useState(4);
   const [cards, setCards] = useState<CardConfig[]>([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -454,7 +434,7 @@ export default function SetupWizard({ onComplete }: { onComplete: (cards: CardCo
     setCards(Array.from({ length: cardCount }).map((_, i) => ({
       id: `card-${i}`, title: '', type: null, description: '',
       dataSource: null, dataSourceDescription: '',
-      indicator: null, unit: null, layout: 'standard',
+      indicator: null, unit: null, layout: 'standard' as CardLayout,
     })));
     setStep('configure');
   };
@@ -496,46 +476,6 @@ export default function SetupWizard({ onComplete }: { onComplete: (cards: CardCo
     </div>
   );
 
-  // ── LAYOUTS ──
-  if (step === 'layouts') return (
-    <div className="min-h-screen flex flex-col p-4 md:p-8 font-sans">
-      <div className="max-w-5xl w-full mx-auto flex-1 flex flex-col">
-        <div className="mb-8 shrink-0">
-          <h2 className="text-2xl font-semibold text-[var(--text-primary)]">Choose Card Layouts</h2>
-          <p className="text-[var(--text-secondary)] mt-2">Select how each card is displayed.</p>
-        </div>
-        <div className="flex-1 overflow-y-auto pr-2 space-y-8">
-          {cards.map((card, idx) => (
-            <div key={card.id} className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded-2xl p-6 shadow-sm">
-              <div className="mb-4">
-                <h3 className="text-lg font-medium text-[var(--text-primary)]">{card.title || `Card ${idx + 1}`}</h3>
-                <p className="text-sm text-[var(--text-secondary)]">
-                  {card.indicator || 'No indicator'}
-                  {card.unit && card.unit !== 'no unit' ? ` (${card.unit})` : ''}
-                  {card.aiData ? ` — AI value: ${card.aiData.value}` : ''}
-                </p>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {LAYOUTS.map(layout => (
-                  <LayoutPreview key={layout.value} layout={layout.value} selected={card.layout === layout.value}
-                    onClick={() => setCards(prev => prev.map((c, i) => i === idx ? { ...c, layout: layout.value } : c))} />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-6 flex justify-between shrink-0 pt-4 border-t border-[var(--border-subtle)]">
-          <button onClick={() => { setStep('configure'); setCurrentCardIndex(cards.length - 1); }} className="px-6 py-3 rounded-xl font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-2">
-            <ChevronLeft className="w-4 h-4" /> Back
-          </button>
-          <button onClick={() => setStep('ai-model')} className="px-8 py-3 rounded-xl font-medium bg-[var(--accent-primary)] text-[var(--bg-base)] hover:opacity-90 flex items-center gap-2 shadow-lg">
-            Next <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
   // ── AI MODEL ──
   if (step === 'ai-model') return (
     <div className="min-h-screen flex flex-col p-4 md:p-8 font-sans">
@@ -548,12 +488,12 @@ export default function SetupWizard({ onComplete }: { onComplete: (cards: CardCo
           <div className="border border-[var(--accent-primary)]/30 bg-[var(--accent-primary)]/5 rounded-xl p-6">
             <h3 className="text-lg font-medium text-[var(--text-primary)] mb-1">Gemini 2.0 Flash</h3>
             <p className="text-sm text-[var(--text-secondary)]">
-              Reads uploaded files, applies your indicator and unit definitions, and returns precise values with step-by-step calculation reasoning.
+              Reads your uploaded files, applies indicator and unit definitions, and returns precise values with step-by-step calculation reasoning.
             </p>
           </div>
         </div>
         <div className="mt-8 flex justify-between">
-          <button onClick={() => setStep('layouts')} className="px-6 py-3 rounded-xl font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-2">
+          <button onClick={() => { setStep('configure'); setCurrentCardIndex(cards.length - 1); }} className="px-6 py-3 rounded-xl font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-2">
             <ChevronLeft className="w-4 h-4" /> Back
           </button>
           <button onClick={() => onComplete(cards)} className="px-8 py-3 rounded-xl font-medium bg-[var(--accent-primary)] text-[var(--bg-base)] hover:opacity-90 flex items-center gap-2 shadow-lg">
@@ -594,11 +534,11 @@ export default function SetupWizard({ onComplete }: { onComplete: (cards: CardCo
                   <button key={type.value}
                     onClick={() => updateCurrentCard({
                       type: type.value,
-                      dataSource: null, // reset ALWAYS
+                      dataSource: null,
                       dataSourceDescription: '',
                       indicator: null,
                       unit: null,
-                      aiData: undefined
+                      aiData: undefined,
                     })}
                     className={`p-4 rounded-xl border text-left transition-all ${currentCard.type === type.value ? 'bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]/50 text-[var(--accent-primary)]' : 'bg-[var(--bg-base)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--text-secondary)]'}`}
                   >
@@ -613,7 +553,7 @@ export default function SetupWizard({ onComplete }: { onComplete: (cards: CardCo
               {currentCard.type && (
                 <motion.div key="details" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-10">
 
-                  {/* 2. Data Source */}
+                  {/* 2. Details & Data Source */}
                   <section className="space-y-4">
                     <div className="flex items-center gap-2">
                       <Database className="w-5 h-5 text-[var(--accent-primary)]" />
@@ -639,7 +579,7 @@ export default function SetupWizard({ onComplete }: { onComplete: (cards: CardCo
                         />
                       </div>
                       <div>
-                        <label className="block text-sm text-[var(--text-secondary)] mb-3">Select Data Source</label>
+                        <label className="block text-sm text-[var(--text-secondary)] mb-3">Data Source</label>
                         <div className="space-y-2">
                           {DATA_SOURCE_OPTIONS.map(opt => {
                             const Icon = opt.icon;
@@ -647,7 +587,11 @@ export default function SetupWizard({ onComplete }: { onComplete: (cards: CardCo
                             return (
                               <button
                                 key={opt.value}
-                                onClick={() => updateCurrentCard({ dataSource: opt.value, dataSourceDescription: '', aiData: undefined })}
+                                onClick={() => updateCurrentCard({
+                                  dataSource: isSelected ? null : opt.value,
+                                  dataSourceDescription: '',
+                                  aiData: undefined,
+                                })}
                                 className={`w-full flex items-center gap-3 p-4 rounded-xl border text-left transition-all ${isSelected ? 'bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]/50' : 'bg-[var(--bg-panel)] border-[var(--border-subtle)] hover:border-[var(--text-secondary)]'}`}
                               >
                                 <Icon className={`w-5 h-5 shrink-0 ${isSelected ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)]'}`} />
@@ -694,24 +638,32 @@ export default function SetupWizard({ onComplete }: { onComplete: (cards: CardCo
                     </div>
                   </section>
 
-                  {/* 3. Indicator & Unit */}
+                  {/* 3. Indicator & Unit — only after data source selected */}
                   {currentCard.dataSource && (
                     <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                       <div className="flex items-center gap-2">
                         <Activity className="w-5 h-5 text-[var(--accent-primary)]" />
                         <h3 className="font-medium text-[var(--text-primary)]">3. Indicator & Unit</h3>
+                        <span className="text-xs text-[var(--text-secondary)]">— select one</span>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {INDICATORS[currentCard.type].map(ind => (
-                          <button key={ind.label}
-                            onClick={() => updateCurrentCard({ indicator: currentCard.indicator === ind.label ? null : ind.label, unit: null })}
-                            className={`p-4 rounded-xl border text-left transition-all ${currentCard.indicator === ind.label ? 'bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]/50 text-[var(--accent-primary)]' : 'bg-[var(--bg-base)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--text-secondary)]'}`}
-                          >
-                            <div className="font-medium mb-1">{ind.label}</div>
-                            <div className="text-xs opacity-70">{ind.desc}</div>
-                          </button>
-                        ))}
+                        {INDICATORS[currentCard.type].map(ind => {
+                          const isSelected = currentCard.indicator === ind.label;
+                          return (
+                            <button key={ind.label}
+                              onClick={() => updateCurrentCard({
+                                // clicking selected deselects; clicking unselected replaces and resets unit
+                                indicator: isSelected ? null : ind.label,
+                                unit: isSelected ? null : null,
+                              })}
+                              className={`p-4 rounded-xl border text-left transition-all ${isSelected ? 'bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]/50 text-[var(--accent-primary)]' : 'bg-[var(--bg-base)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--text-secondary)]'}`}
+                            >
+                              <div className="font-medium mb-1">{ind.label}</div>
+                              <div className="text-xs opacity-70">{ind.desc}</div>
+                            </button>
+                          );
+                        })}
                       </div>
 
                       <div className="pt-4 border-t border-[var(--border-subtle)]">
@@ -743,8 +695,14 @@ export default function SetupWizard({ onComplete }: { onComplete: (cards: CardCo
                         </div>
                       </div>
 
+                      {/* Unit — renders immediately when indicator is set */}
                       {currentCard.indicator && (
-                        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="pt-4 border-t border-[var(--border-subtle)]">
+                        <motion.div
+                          key={currentCard.indicator}
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="pt-4 border-t border-[var(--border-subtle)]"
+                        >
                           <label className="block text-sm text-[var(--text-secondary)] mb-3">
                             Unit for <span className="text-[var(--text-primary)] font-medium">{currentCard.indicator}</span>
                           </label>
@@ -758,7 +716,7 @@ export default function SetupWizard({ onComplete }: { onComplete: (cards: CardCo
                     </motion.section>
                   )}
 
-                  {/* 4. AI Analysis */}
+                  {/* 4. AI Analysis — optional, shown when indicator + unit are set */}
                   {currentCard.indicator && currentCard.unit !== null && currentCard.dataSource !== 'company-drive' && (
                     <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                       <div className="flex items-center gap-2">
@@ -793,12 +751,12 @@ export default function SetupWizard({ onComplete }: { onComplete: (cards: CardCo
           <button
             onClick={() => {
               if (currentCardIndex < cards.length - 1) setCurrentCardIndex(c => c + 1);
-              else setStep('layouts');
+              else setStep('ai-model');
             }}
             disabled={!canProceed}
             className="px-8 py-3 rounded-xl font-medium bg-[var(--text-primary)] text-[var(--bg-base)] hover:opacity-90 disabled:opacity-50 flex items-center gap-2 shadow-lg"
           >
-            {currentCardIndex === cards.length - 1 ? 'Choose Layouts' : 'Next Card'} <ChevronRight className="w-4 h-4" />
+            {currentCardIndex === cards.length - 1 ? 'Continue' : 'Next Card'} <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
