@@ -240,28 +240,43 @@ export default function Dashboard({
                       </div>
                     )}
 
-                    {/* AI Insight overlay */}
+                   {/* AI Insight overlay */}
                     <AnimatePresence>
                       {isInsightExpanded && card.aiData && (
                         <motion.div
-                          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
                           className="absolute inset-0 z-30 bg-[var(--bg-panel)]/96 rounded-xl p-4 flex flex-col"
                         >
                           <div className="flex items-center justify-between mb-3">
-                            <span className="text-xs font-semibold text-[var(--accent-primary)] uppercase tracking-wider">AI Insight</span>
-                            <button onClick={() => setExpandedInsight(null)} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                            <span className="text-xs font-semibold text-[var(--accent-primary)] uppercase tracking-wider">
+                              AI Insight
+                            </span>
+                            <button
+                              onClick={() => setExpandedInsight(null)}
+                              className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                            >
                               <X className="w-4 h-4" />
                             </button>
                           </div>
-                         <p className="text-sm text-[var(--text-primary)] leading-relaxed">{card.aiData.insight}</p>
-                            {card.aiData.calculationSteps && (
-                              <div className="mt-3 pt-3 border-t border-[var(--border-subtle)]">
-                                <div className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wider mb-2 font-semibold">Calculation</div>
-                                <pre className="text-[10px] text-[var(--text-secondary)] whitespace-pre-wrap font-mono leading-relaxed overflow-y-auto max-h-40">
-                                  {card.aiData.calculationSteps}
-                                </pre>
+                    
+                          <p className="text-sm text-[var(--text-primary)] leading-relaxed">
+                            {card.aiData.insight}
+                          </p>
+                    
+                          {card.aiData.calculationSteps && (
+                            <div className="mt-3 pt-3 border-t border-[var(--border-subtle)]">
+                              <div className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wider mb-2 font-semibold">
+                                Calculation
                               </div>
-                            )}
+                              <pre className="text-[10px] text-[var(--text-secondary)] whitespace-pre-wrap font-mono leading-relaxed overflow-y-auto max-h-40">
+                                {card.aiData.calculationSteps}
+                              </pre>
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
                     </AnimatePresence>
 
                     {/* Card layouts */}
