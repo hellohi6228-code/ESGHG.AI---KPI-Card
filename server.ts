@@ -128,88 +128,100 @@ async function startServer() {
   });
 
   // File upload + AI analysis
-  app.post("/api/upload-analyze", upload.single("file"), async (req: any, res) => {
-    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+  app.post('/api/upload-analyze', upload.array('files', 10), async (req: any, res) => {
+  const files: Express.Multer.File[] = req.files || [];
+  if (!files.length) return res.status(400).json({ error: 'No files uploaded' });
 
-    const { indicator, kpiType, description, userPrompt } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY;
+  const { indicator, kpiType, unit, description, cardDescription } = req.body;
+  const apiKey = process.env.GEMINI_API_KEY;
 
-    if (!apiKey) {
-      fs.unlink(req.file.path, () => {});
-      return res.status(503).json({ error: "GEMINI_API_KEY not set in Secrets" });
+  if (!apiKey) {
+    files.forEach(f => fs.unlink(f.path, () => {}));
+    return res.status(503).json({ error: 'GEMINI_API_KEY not set in Secrets' });
+  }
+
+  try {
+    const contentParts: any[] = [];
+    const fileNames: string[] = [];
+
+    for (const file of files) {
+      fileNames.push(file.originalname);
+      const fileBuffer = fs.readFileSync(file.path);
+      const isPDF = file.mimetype === 'application/pdf';
+      if (isPDF) {
+        contentParts.push({
+          inline_data: { mime_type: 'application/pdf', data: fileBuffer.toString('base64') },
+        });
+      } else {
+        let text = fileBuffer.toString('utf-8');
+        if (text.length > 6000) text = text.slice(0, 6000) + '\n...[truncated]';
+        contentParts.push({ text: `=== FILE: ${file.originalname} ===\n${text}` });
+      }
+      fs.unlink(file.path, () => {});
     }
 
-    try {
-      const fileBuffer = fs.readFileSync(req.file.path);
-      const fileName = req.file.originalname;
-      const isPDF = req.file.mimetype === "application/pdf";
+    const prompt = `You are a precise manufacturing KPI analyst. Extract and compute the requested KPI from the provided file(s).
 
-      let contentPart: any;
-      if (isPDF) {
-        contentPart = {
-          inline_data: {
-            mime_type: "application/pdf",
-            data: fileBuffer.toString("base64"),
-          },
-        };
-      } else {
-        let text = fileBuffer.toString("utf-8");
-        if (text.length > 8000) text = text.slice(0, 8000) + "\n...[truncated]";
-        contentPart = { text: `FILE CONTENTS:\n${text}` };
-      }
+KPI type: ${kpiType || 'general'}
+Indicator: ${indicator || 'not specified'}
+Target unit: ${unit && unit !== 'no unit' ? unit : 'auto-detect or dimensionless'}
+File description: ${description || 'not provided'}
+Card description: ${cardDescription || 'not provided'}
 
-      const prompt = `You are a manufacturing KPI analyst. Extract the KPI value from this file.
+Instructions:
+- Identify the relevant columns/rows based on the indicator, descriptions, and file contents
+- Perform all calculations explicitly — do not estimate or guess
+- If multiple files are provided, combine or compare them as appropriate
+- Express the result in the specified unit; if unit is dimensionless or not specified, state "no unit"
+- Trend should compare to a prior period if that data is present; otherwise "N/A"
 
-KPI type: ${kpiType || "general"}
-Indicator: ${indicator || "not specified"}
-Description: ${description || "not specified"}
-User request: ${userPrompt || "Extract the main KPI value"}
-
-Respond ONLY with this JSON (no markdown, no explanation):
+Respond ONLY with this JSON (no markdown, no extra text):
 {
-  "value": "number with unit e.g. 94.2% or $1,240 or 12.4t",
-  "trend": "change vs prior period e.g. +2.4% or -1.1% or N/A",
-  "insight": "one sentence on what this means for the business"
+  "value": "numeric result only, e.g. 94.2 or 1240 or 12.4",
+  "unit": "unit string exactly as specified, or auto-detected, or 'no unit'",
+  "trend": "change vs prior period e.g. +2.4% or -1.1t or N/A",
+  "insight": "one sentence business implication",
+  "calculationSteps": "numbered steps referencing actual cell/column/row values: 1. Located column 'Defects' rows 2-31... 2. Sum = 47... 3. Total units = 9400... 4. Rate = 47/9400 = 0.5%"
 }`;
 
-      const aiRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }, contentPart] }],
-            generationConfig: { maxOutputTokens: 300, temperature: 0.1 },
-          }),
-        }
-      );
-
-      const aiData = await aiRes.json() as any;
-      const raw: string = aiData.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-
-      let parsed: any = {};
-      try {
-        parsed = JSON.parse(raw.replace(/```json|```/g, "").trim());
-      } catch {
-        parsed = { value: "--", trend: "N/A", insight: raw.slice(0, 120) };
+    const aiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }, ...contentParts] }],
+          generationConfig: { maxOutputTokens: 600, temperature: 0.1 },
+        }),
       }
+    );
 
-      fs.unlink(req.file.path, () => {});
+    const aiData = await aiRes.json() as any;
+    const raw: string = aiData.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
 
-      res.json({
-        value: parsed.value || "--",
-        trend: parsed.trend || "N/A",
-        insight: parsed.insight || "No insight available.",
-        fileName,
-        extractedAt: new Date().toISOString(),
-      });
-
-    } catch (err: any) {
-      fs.unlink(req.file.path, () => {});
-      res.status(500).json({ error: "Analysis failed: " + err.message });
+    let parsed: any = {};
+    try {
+      parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    } catch {
+      parsed = { value: '--', unit: '', trend: 'N/A', insight: raw.slice(0, 120), calculationSteps: '' };
     }
-  });
 
+    res.json({
+      value: parsed.value || '--',
+      unit: parsed.unit || '',
+      trend: parsed.trend || 'N/A',
+      insight: parsed.insight || 'No insight available.',
+      calculationSteps: parsed.calculationSteps || '',
+      fileName: fileNames.join(', '),
+      extractedAt: new Date().toISOString(),
+    });
+
+  } catch (err: any) {
+    files.forEach(f => fs.unlink(f.path, () => {}));
+    res.status(500).json({ error: 'Analysis failed: ' + err.message });
+  }
+});
+  
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
