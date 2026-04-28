@@ -162,7 +162,7 @@ const SharedDrivePanel: React.FC<{
         {msNote && (
           <div className="text-xs text-[var(--text-secondary)] bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 leading-relaxed">
             SharePoint integration requires Azure AD app registration.{' '}
-            <a href="mailto:support@6kinc.com" className="text-[var(--accent-primary)] underline">Contact us</a>{' '}
+            <a href="mailto:kl774@cornell.edu" className="text-[var(--accent-primary)] underline">Contact us</a>{' '}
             to configure for your organisation.
           </div>
         )}
@@ -189,8 +189,10 @@ const CompanyDrivePanel: React.FC<{
       <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
         Company intranet drives require a secure API connector configured by your IT team between your internal file server and this dashboard.
       </p>
-      
-        href="mailto:support@6kinc.com?subject=Company Drive Integration Request"
+
+      {/* ✅ FIXED: missing 'a' tag added here */}
+      <a
+        href="mailto:kl774@cornell.edu?subject=Company Drive Integration Request"
         className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 rounded-lg text-sm font-medium hover:bg-[var(--accent-primary)]/20 transition-colors"
       >
         <Mail className="w-4 h-4" /> Contact IT / Admin
